@@ -1,0 +1,72 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+build/.ninja_deps
+build/.ninja_log
+build/build.ninja
+build/cmake_install.cmake
+build/CMakeCache.txt
+build/compile_commands.json
+build/.cmake/api/v1/query/client-vscode/query.json
+build/.cmake/api/v1/reply/cache-v2-d2fe2f7c9e0001322d66.json
+build/.cmake/api/v1/reply/cmakeFiles-v1-4048b62da153b199e855.json
+build/.cmake/api/v1/reply/codemodel-v2-2941771cf157bbdda3a0.json
+build/.cmake/api/v1/reply/directory-.-Debug-f5ebdc15457944623624.json
+build/.cmake/api/v1/reply/directory-src-Debug-b6cf2213fc5053b67c22.json
+build/.cmake/api/v1/reply/index-2022-09-14T21-18-00-0968.json
+build/.cmake/api/v1/reply/target-QRScanner_autogen_timestamp_deps-Debug-5043ef311d1279bd52fa.json
+build/.cmake/api/v1/reply/target-QRScanner_autogen-Debug-88d0accb9154029516a2.json
+build/.cmake/api/v1/reply/target-QRScanner-Debug-c9cdf88b49520819cfb5.json
+build/.cmake/api/v1/reply/toolchains-v1-cbf7329d39bb1de940c7.json
+build/.qt/QtDeploySupport.cmake
+build/CMakeFiles/clean_additional.cmake
+build/CMakeFiles/cmake.check_cache
+build/CMakeFiles/CMakeOutput.log
+build/CMakeFiles/rules.ninja
+build/CMakeFiles/TargetDirectories.txt
+build/CMakeFiles/3.23.3/CMakeCXXCompiler.cmake
+build/CMakeFiles/3.23.3/CMakeDetermineCompilerABI_CXX.bin
+build/CMakeFiles/3.23.3/CMakeSystem.cmake
+build/CMakeFiles/3.23.3/CompilerIdCXX/CMakeCXXCompilerId.cpp
+build/src/cmake_install.cmake
+build/src/QRScanner
+build/src/CMakeFiles/QRScanner_autogen.dir/AutogenInfo.json
+build/src/CMakeFiles/QRScanner_autogen.dir/AutogenUsed.txt
+build/src/CMakeFiles/QRScanner_autogen.dir/ParseCache.txt
+build/src/QRScanner_autogen/deps
+build/src/QRScanner_autogen/moc_predefs.h
+build/src/QRScanner_autogen/mocs_compilation.cpp
+build/src/QRScanner_autogen/timestamp
+build/src/QRScanner_autogen/EWIEGA46WW/moc_MDDatatable.cpp
+.vscode/c_cpp_properties.json
+.vscode/settings.json
+.vscode/tasks.json
