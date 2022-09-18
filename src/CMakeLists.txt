@@ -5,6 +5,8 @@ add_compile_definitions(LINUX)
 add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
 
+
+add_compile_definitions(FMT_HEADER_ONLY)
 set(PROJECT_SOURCES
         main.cpp
         MDDatatable.cpp
@@ -27,7 +29,7 @@ add_executable(QRScanner
     ${PROJECT_HEADERS}
     ${PROJECT_FORMS}
 )
-target_link_libraries(QRScanner PRIVATE Qt6::Widgets ${OpenCV_LIBS}) # qrtopng)
+target_link_libraries(QRScanner PRIVATE Qt6::Widgets)
 
 
 set_target_properties(QRScanner PROPERTIES

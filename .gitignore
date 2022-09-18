@@ -70,3 +70,6 @@ build/src/QRScanner_autogen/EWIEGA46WW/moc_MDDatatable.cpp
 .vscode/c_cpp_properties.json
 .vscode/settings.json
 .vscode/tasks.json
+build/.cmake/api/v1/reply/codemodel-v2-ce449a32b167ff3629ef.json
+build/.cmake/api/v1/reply/index-2022-09-18T16-41-09-0805.json
+build/.cmake/api/v1/reply/target-QRScanner-Debug-5ef6ea048f8d6a29b098.json
