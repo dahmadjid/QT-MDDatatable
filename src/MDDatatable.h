@@ -56,11 +56,10 @@ class MDDatatable : public QWidget
     public:
         MDDatatable(QWidget* parent = nullptr);
         MDDatatable(const std::vector<MDRow*>& rows, QWidget* parent = nullptr);
-        void load(std::vector<MDRow*> rows);
+        void load(const std::vector<MDRow*>& rows);
         
         void addRow(MDRow* row);
         std::vector<MDRow*> getRows() const;
-        
 
     private:
         std::vector<MDRow*> m_rows;

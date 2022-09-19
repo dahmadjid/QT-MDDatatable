@@ -37,31 +37,29 @@ MDRow::MDRow(const std::vector<QWidget*>& elements, QWidget* parent) : QWidget(p
         widget->setParent(this);
         m_elements.push_back(widget);
     }
-    QTimer::singleShot(1, this, [=]{setefRo7ek();});  
+    QTimer::singleShot(1, this, [&]{setefRo7ek();});  
 
 
 }
-
-MDRow* MDRow::fromStringVector(const std::vector<std::string>& row_data, bool header, QWidget* parent)
+void MDRow::addElement(QWidget* element)
 {
-    
-    std::vector<QWidget*> elements;
-    for (const auto& str: row_data)
-    {
-        auto lbl = new QLabel(QString::fromStdString(str));
-        if (header)
-        {
-            lbl->setStyleSheet("font-family: \"Arial\"; font-size: 14px; font-weight : 700;");
-        }
-        else
-        {
-            lbl->setStyleSheet("font-family: \"Arial\"; font-size: 14px; font-weight : 400;");
-        }
-        elements.push_back(lbl);
-    }
-    
-    return new MDRow(elements, parent);
+    element->setParent(this);
+    m_elements.push_back(element);
+    QTimer::singleShot(1, this, [&]{setefRo7ek();});  
 }
+
+void MDRow::setMargin(int margin)
+{
+    m_margin = margin;
+    setefRo7ek();
+}
+
+void MDRow::setSpacing(int spacing)
+{
+    m_spacing = spacing;
+    setefRo7ek();
+}
+
 
 void MDRow::setefRo7ek()
 {
@@ -70,18 +68,15 @@ void MDRow::setefRo7ek()
         int offset = m_margin; // for the leftmost margin 
         m_offsets.push_back(offset);
 
-        for (int i = 0; i < m_elements.size(); i++)
+        for (auto & m_element : m_elements)
         {
-            m_elements[i]->move(offset, 0);
-            offset += m_elements[i]->width() + m_spacing; 
+            m_element->move(offset, 0);
+            offset += m_element->width() + m_spacing;
             m_offsets.push_back(offset);
         }
         // right most margin: m_spacing removed because it was already added in last iteration.
         m_row_width = offset + m_margin - m_spacing;
         this->setFixedSize(m_row_width, m_row_height);
-        fmt::print("msetef: {}, {}\n", m_row_width, m_row_height);
-
-
     }
     else
     {
@@ -105,7 +100,7 @@ void MDRow::setefRo7ek(const std::vector<int>& offsets, int row_height)
 
         for (int i = 0; i < m_elements.size(); i++)
         {
-            m_offsets[i] = offsets[i];
+            m_offsets.push_back(offsets[i]);
             m_elements[i]->setFixedHeight(row_height);
             m_elements[i]->move(m_offsets[i], 0);
         }
@@ -114,7 +109,8 @@ void MDRow::setefRo7ek(const std::vector<int>& offsets, int row_height)
         // last index of argument offsets means the width of the entire datatable
         m_row_width = offsets[offsets.size() - 1];  
         // however for the internal m_offsets of any individual row, the last index means where should the next element be put
-        m_offsets.push_back(m_offsets[m_offsets.size() - 1] + m_elements[m_elements.size() - 1]->width() +  m_spacing);
+        if (m_offsets.size() > 0 && m_elements.size() > 0)
+            m_offsets.push_back(m_offsets[m_offsets.size() - 1] + m_elements[m_elements.size() - 1]->width() +  m_spacing);
         
         this->setFixedSize(m_row_width, m_row_height);
     }
@@ -135,33 +131,34 @@ void MDRow::clear()
 }
 
 
-void MDRow::setMargin(int margin)
+
+MDRow* MDRow::fromStringVector(const std::vector<std::string>& row_data, bool header, QWidget* parent)
 {
-    m_margin = margin;
-    setefRo7ek();
+    
+    std::vector<QWidget*> elements;
+    for (const auto& str: row_data)
+    {
+        auto lbl = new QLabel(QString::fromStdString(str));
+        if (header)
+        {
+            lbl->setStyleSheet("font-family: \"Arial\"; font-size: 14px; font-weight : 700;");
+        }
+        else
+        {
+            lbl->setStyleSheet("font-family: \"Arial\"; font-size: 14px; font-weight : 400;");
+        }
+        elements.push_back(lbl);
+    }
+    
+    return new MDRow(elements, parent);
 }
 
-void MDRow::setSpacing(int spacing)
-{
-    m_spacing = spacing;
-    setefRo7ek();
-}
 
 
-
-void MDDatatable::addRow(MDRow* row)
-{
-    row->setParent(this);
-    m_rows.push_back(row);
-    setefRo7ek();
-}
 
 
 MDDatatable::MDDatatable(const std::vector<MDRow*>& rows, QWidget* parent) : QWidget(parent)
 {
-
-
-
 
     this->setAttribute(Qt::WA_StyledBackground, true);
     this->setStyleSheet("background-color: rgb(200,200,200);");
@@ -176,6 +173,16 @@ MDDatatable::MDDatatable(const std::vector<MDRow*>& rows, QWidget* parent) : QWi
 } 
 
 
+void MDDatatable::addRow(MDRow* row)
+{
+
+    row->setParent(this);
+
+    m_rows.push_back(row);
+
+    // QTimer::singleShot(1, this, [=]{setefRo7ek();});  
+
+}
 
 
 void MDDatatable::setefRo7ek()
@@ -190,19 +197,18 @@ void MDDatatable::setefRo7ek()
 
           // represents max length (ie where to put the next element)
         std::vector<int> biggest_columns_sizes;
-        for (int i = 0; i < m_rows.size(); i++)
+        for (auto & m_row : m_rows)
         {
 
-            for (int j = 0; j < m_rows[i]->m_elements.size(); j++)
+            for (int j = 0; j < m_row->m_elements.size(); j++)
             {
-
                 if (j >= biggest_columns_sizes.size())
                 {
                     biggest_columns_sizes.push_back(0);
                 }
-                if(m_rows[i]->m_elements[j]->width() > biggest_columns_sizes[j])
+                if(m_row->m_elements[j]->width() > biggest_columns_sizes[j])
                 {
-                    biggest_columns_sizes[j] = m_rows[i]->m_elements[j]->width();
+                    biggest_columns_sizes[j] = m_row->m_elements[j]->width();
                     
                 }
             } 
@@ -226,17 +232,24 @@ void MDDatatable::setefRo7ek()
             
             if (i == 0)
             {
+
                 m_rows[0]->setefRo7ek(m_cols_offsets, m_header_height);
                 m_rows[0]->move(0, 0);
                 m_rows_offsets.push_back(0);
                 m_rows_offsets.push_back(m_header_height + m_row_spacing);
+
             }
             else
             {
                 m_rows[i]->setefRo7ek(m_cols_offsets, m_normal_rows_height);
+                
                 m_rows[i]->move(0, m_rows_offsets[i]);
+                
                 m_rows_offsets.push_back(m_rows_offsets[i] + m_normal_rows_height + m_row_spacing);
+            
             }
+
+            fmt::print(".\n");
         }
 
         m_table_height = m_rows_offsets[m_rows_offsets.size() - 1] - m_row_spacing;
@@ -253,7 +266,7 @@ void MDDatatable::setefRo7ek()
     
 }
 
-void MDDatatable::load(std::vector<MDRow*> rows)
+void MDDatatable::load(const std::vector<MDRow*>& rows)
 {
 
 } 

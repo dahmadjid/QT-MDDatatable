@@ -1,10 +1,3 @@
-if (WIN32)
-add_compile_definitions(WINDOWS)
-else()
-add_compile_definitions(LINUX)
-add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
-
 
 add_compile_definitions(FMT_HEADER_ONLY)
 set(PROJECT_SOURCES
