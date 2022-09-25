@@ -3,7 +3,7 @@
 #include <QHBoxLayout>
 #include <QTimer>
 #include <fmt/format.h>
-
+#include <QPushButton>
 MDRow::MDRow(QWidget* parent) : QWidget(parent)
 {   
     this->setAttribute(Qt::WA_StyledBackground, true);
@@ -19,10 +19,27 @@ MDRow::MDRow(const std::vector<QWidget*>& elements, QWidget* parent) : QWidget(p
     this->setAttribute(Qt::WA_StyledBackground, true);
     this->setStyleSheet("background-color: rgb(255,255,255);");
 
-    for (auto widget : elements)
+    for (auto element : elements)
     {
-        widget->setParent(this);
-        m_elements.push_back(widget);
+        element->setParent(this);
+        m_elements.push_back(element);
+        m_truncate_element.push_back(false);
+
+        // TODO: Anything that has the text property (template this)
+        QLabel* lbl = dynamic_cast<QLabel*>(element);
+        QPushButton* btn = dynamic_cast<QPushButton*>(element);
+        if (lbl != nullptr )
+        {
+            m_original_text.push_back(lbl->text().toStdString());
+        }
+        else if (btn != nullptr)
+        {
+            m_original_text.push_back(btn->text().toStdString());
+        }
+        else
+        {
+            m_original_text.push_back("");
+        }
     }
     m_auto_resize = true;
     m_needs_testaf = true;
@@ -31,13 +48,28 @@ MDRow::MDRow(const std::vector<QWidget*>& elements, QWidget* parent) : QWidget(p
     {
         setefRo7ek();
     }
-
-
 }
 void MDRow::addElement(QWidget* element)
 {
     element->setParent(this);
     m_elements.push_back(element);
+    m_truncate_element.push_back(false);
+
+    // TODO: Anything that has the text property (template this)
+    QLabel* lbl = dynamic_cast<QLabel*>(element);
+    QPushButton* btn = dynamic_cast<QPushButton*>(element);
+    if (lbl != nullptr )
+    {
+        m_original_text.push_back(lbl->text().toStdString());
+    }
+    else if (btn != nullptr)
+    {
+        m_original_text.push_back(btn->text().toStdString());
+    }
+    else
+    {
+        m_original_text.push_back("");
+    }
     m_needs_testaf = true;
     if (this->isVisible())
     {
@@ -75,6 +107,12 @@ void MDRow::setefRo7ek()
             fmt::print("MDRow msetef already\n");
             return;
         }
+
+        if (m_offsets.size() < m_elements.size())
+        {
+            fmt::print("invalid m_offsets. its size: {} less than m_elements's size:{}", m_offsets.size(), m_elements.size());
+            return;
+        }
             fmt::print("MDRow: setefRo7ek event\n");
 
         if (m_auto_resize)
@@ -97,14 +135,58 @@ void MDRow::setefRo7ek()
         }
         else // m_offsets is set inside of MDRow::resizeColumns().
         {
-            if (m_offsets.size() < m_elements.size())
-            {
-                fmt::print("invalid m_offsets. its size: {} less than m_elements's size:{}", m_offsets.size(), m_elements.size());
-                return;
-            }
+            
             for (int i = 0; i < m_elements.size(); i++)
             {
                 m_elements[i]->move(m_offsets[i], 0);
+                if(m_offsets[i+1] - m_offsets[i] < m_elements[i]->width())
+                {
+                    m_truncate_element[i] = true;
+                }
+                // if (m_truncate_element[i] == true)
+                // {
+                //     QLabel* lbl = dynamic_cast<QLabel*>(m_elements[i]);
+                //     QPushButton* btn = dynamic_cast<QPushButton*>(m_elements[i]);
+                //     if (lbl != nullptr )
+                //     {
+                //         // QTimer this shit
+                //         std::function<void(QLabel*, const std::vector<int>&, int, QTimer*)> truncateLabelSize = [&](QLabel* label, const std::vector<int>& offsets, int index, QTimer* timer)
+                //         {
+                            
+                //             if (label->text().toStdString().length() > 0)
+                //             {
+                                
+                //                 std::string text = label->text().toStdString();
+                //                 label->setText(QString::fromStdString(text.substr(0, text.length() - 1)));
+                //                 fmt::print("text = {}, size = {}, width = {}\n", label->text().toStdString(), label->text().length(), label->width());
+                //                 fmt::print("{} {} {}\n", offsets[index+1], offsets[index], label->width());
+                //                 label->repaint();
+                //                 if (offsets[index+1] - offsets[index] >= label->width())
+                //                 {
+                //                    timer->stop();
+                //                    delete timer;
+                //                 }
+                //             }
+                    
+                            
+                //         };
+                //         if (m_offsets[i+1] - m_offsets[i] < lbl->width())
+                //         {
+                //             QTimer* t = new QTimer();
+                //             connect(t, &QTimer::timeout, std::bind(truncateLabelSize, lbl, m_offsets, i, t));
+                //             t->start(10);
+                //             QTimer::singleShot(2500, [=]{fmt::print("{} \n", m_elements[i]->width());});
+                //         }
+                        
+                //     }
+                //     else if (btn != nullptr)
+                //     {
+                //     }
+                //     else
+                //     {
+                //     }
+                // }
+
             }
             if (m_offsets.size() > 0)
             {
@@ -112,7 +194,7 @@ void MDRow::setefRo7ek()
             }
             this->setFixedSize(m_row_width, m_row_height);
         }
-            
+
         m_needs_testaf = false;
 
     }
@@ -153,6 +235,7 @@ void MDRow::setefRo7ek(const std::vector<int>& offsets, int row_height)
             m_offsets.push_back(m_offsets[m_offsets.size() - 1] + m_elements[m_elements.size() - 1]->width() +  m_spacing);
         
         this->setFixedSize(m_row_width, m_row_height);
+
     }
     else
     {
@@ -368,7 +451,7 @@ void MDDatatable::setefRo7ek()
                 {
 
                     m_rows[i]->move(0, m_rows_offsets[i]);
-                    m_rows_offsets.push_back(m_rows_offsets[i] + m_normal_rows_height + m_row_spacing);
+                    m_rows_offsets.push_back(m_rows_offsets[i] + m_normal_rows_height + m_row_spacing );
                 }
 
             }

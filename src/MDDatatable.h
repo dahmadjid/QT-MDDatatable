@@ -44,8 +44,8 @@ class MDRow : public QWidget
          * 
          */
         std::vector<int> m_offsets; 
-
-        std::vector<int> m_minimum_sizes; // minimum sizes of the elements. used to check wether truncation should happen or nots
+        std::vector<bool> m_truncate_element;
+        std::vector<std::string> m_original_text;
         int m_row_width, m_row_height = 56;
         int m_margin = 32;
         int m_spacing = 16;
