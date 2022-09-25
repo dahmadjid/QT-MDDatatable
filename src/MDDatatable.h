@@ -19,13 +19,16 @@ class MDRow : public QWidget
         void setMargin(int margin);
         void setSpacing(int margin);
         void clear();
+        void resizeColumns(const std::vector<int>& sizes_of_columns);
+        void setAutoResize(bool auto_resize);
 
         static MDRow* fromStringVector(const std::vector<std::string>& row_data, bool header = false, QWidget* parent = nullptr);
+    
     private:
         void setefRo7ek();
 
         /**
-         * @brief Used only by parent datatable to set correct column offsets that matches all rows. 
+         * @brief Used only by parent datatable to set correct column offsets that matches all rows. this forces testaf. 
          * 
          * @param offsets its size can be bigger than the number of elements. 
          * The last index of this vector is the width of the row. this corresponds to the largest row out of all rows in the parent datatable.
@@ -33,14 +36,21 @@ class MDRow : public QWidget
          * 
          */
         void setefRo7ek(const std::vector<int>& offsets, int row_height);
+        void showEvent(QShowEvent *event) override;
 
         std::vector<QWidget*> m_elements;
-        std::vector<int> m_offsets; // this is always 1 element bigger than m_elements. the last offset means where should the next element be put
+        /**
+         * @brief // this is always 1 element bigger than m_elements. the last offset means where should the next element be put
+         * 
+         */
+        std::vector<int> m_offsets; 
+
+        std::vector<int> m_minimum_sizes; // minimum sizes of the elements. used to check wether truncation should happen or nots
         int m_row_width, m_row_height = 56;
         int m_margin = 32;
         int m_spacing = 16;
-
-
+        bool m_needs_testaf = true;
+        bool m_auto_resize = true;
 
     friend class MDDatatable;
         
@@ -57,9 +67,19 @@ class MDDatatable : public QWidget
         MDDatatable(QWidget* parent = nullptr);
         MDDatatable(const std::vector<MDRow*>& rows, QWidget* parent = nullptr);
         void load(const std::vector<MDRow*>& rows);
-        
         void addRow(MDRow* row);
-        std::vector<MDRow*> getRows() const;
+        inline std::vector<MDRow*> getRows() const;
+        void setAutoResize(bool auto_resize);
+
+        /**
+         * @brief resize each column to a custom size. disables auto resize.
+         * if a column is bigger than the specified size, it gets truncated.
+         * Widgets with text property will have an elipsis at the end.
+         * hovering the truncated widget will display the full text.
+         * 
+         * @param sizes_of_columns an std::vector containing the desired size of each column.
+         */
+        void resizeColumns(const std::vector<int>& sizes_of_columns);
 
     private:
         std::vector<MDRow*> m_rows;
@@ -71,7 +91,12 @@ class MDDatatable : public QWidget
         int m_row_spacing = 1;  // spacing between each row
         int m_column_spacing = 16;
         int m_column_margin = 32;
+        bool m_needs_testaf = true;
+        bool m_auto_resize = true;
         void setefRo7ek();
+        void showEvent(QShowEvent *event) override;
+        // void hideEvent(QHideEvent *event) override;
+
 };
 
 

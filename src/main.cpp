@@ -14,24 +14,25 @@ int main(int argc, char *argv[])
     
     std::vector<MDRow*> rows;
 
+    auto datatable = new MDDatatable( &w);
     
-    auto row = MDRow::fromStringVector({"email", "nameaaaaaaaaaaa", "Message", "garbage", "garbage","zaeazdazdzadazdzad"}, true);
+    auto row = MDRow::fromStringVector({"Status", "Signal Name", "Severity", "Stage", "Lapsed Time","Team Lead"}, true);
     rows.push_back(row);
-    row = MDRow::fromStringVector({"dah@gmail.com", "madjid", "sdzdazdazd", "azsazsadzdaz"});
+    row = MDRow::fromStringVector({"Online", "Astrid: NE Shared managed-features-providvy", "Medium", "Triaged", "10:12","Chase Nguyen"});
     rows.push_back(row);
-    row = MDRow::fromStringVector({"crappy@gmail.com", "crapaaaa", "sdzdazdazd", "fafazdqwwwwwwwwwwwazds", "qqqqqq"});
+    row = MDRow::fromStringVector({"Online", "Cosmo Prod Shared vm", "Huge", "Triaged", "12:45", "Brie Furman"});
     rows.push_back(row);
 
+    datatable->load(rows);
+    row = MDRow::fromStringVector({"Online", "Cosmo Prod Shared vm", "Huge", "Triaged", "12:45", "Brie Furman"});
+    datatable->addRow(row);
 
     
-    auto datatable = new MDDatatable(rows, &w);
-    auto rowa = MDRow::fromStringVector({"dah@gazeazeazeazmail.com", "madjid", "sdzdazdazd", "azsazsadzdaz"});
-
-    datatable->addRow(rowa);
-    // QTimer::singleShot(1000, [=]{auto rsow = MDRow::fromStringVector({"dah@gmail.com", "madjid", "sdzdazdazd", "azsazsadzdaz"});datatable->addRow(rsow);});
-
+    
+    datatable->move(0,0);
+    datatable->resizeColumns({100, 100, 100, 100, 100, 100});
     w.setFixedSize(1280, 720);
     w.show();
-
+    
     return a.exec();
 }
