@@ -19,7 +19,6 @@ class MDRow : public QWidget
         void setMargin(int margin);
         void setSpacing(int margin);
         void clear();
-        void resizeColumns(const std::vector<int>& sizes_of_columns);
         void setAutoResize(bool auto_resize);
 
         static MDRow* fromStringVector(const std::vector<std::string>& row_data, bool header = false, QWidget* parent = nullptr);
@@ -46,7 +45,7 @@ class MDRow : public QWidget
         std::vector<int> m_offsets; 
         std::vector<bool> m_truncate_element;
         std::vector<std::string> m_original_text;
-        int m_row_width, m_row_height = 56;
+        int m_row_width, m_row_height = 52;
         int m_margin = 32;
         int m_spacing = 16;
         bool m_needs_testaf = true;
@@ -80,6 +79,7 @@ class MDDatatable : public QWidget
          * @param sizes_of_columns an std::vector containing the desired size of each column.
          */
         void resizeColumns(const std::vector<int>& sizes_of_columns);
+        void setMaxCharCount(const std::vector<int>& max_chars_of_columns);
 
     private:
         std::vector<MDRow*> m_rows;

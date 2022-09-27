@@ -18,7 +18,6 @@ MDRow::MDRow(const std::vector<QWidget*>& elements, QWidget* parent) : QWidget(p
 
     this->setAttribute(Qt::WA_StyledBackground, true);
     this->setStyleSheet("background-color: rgb(255,255,255);");
-
     for (auto element : elements)
     {
         element->setParent(this);
@@ -108,11 +107,7 @@ void MDRow::setefRo7ek()
             return;
         }
 
-        if (m_offsets.size() < m_elements.size())
-        {
-            fmt::print("invalid m_offsets. its size: {} less than m_elements's size:{}", m_offsets.size(), m_elements.size());
-            return;
-        }
+      
             fmt::print("MDRow: setefRo7ek event\n");
 
         if (m_auto_resize)
@@ -135,7 +130,11 @@ void MDRow::setefRo7ek()
         }
         else // m_offsets is set inside of MDRow::resizeColumns().
         {
-            
+            if (m_offsets.size() < m_elements.size())
+            {
+                fmt::print("invalid m_offsets. its size: {} less than m_elements's size:{}\n", m_offsets.size(), m_elements.size());
+                return;
+            }
             for (int i = 0; i < m_elements.size(); i++)
             {
                 m_elements[i]->move(m_offsets[i], 0);
@@ -213,12 +212,12 @@ void MDRow::setefRo7ek(const std::vector<int>& offsets, int row_height)
     {
         fmt::print("MDRow: setefRo7ek event forced by datatable\n");
 
-        m_offsets.clear();
         if (offsets.size() < m_elements.size() + 1)
         {
             fmt::print("Warning MDRow setefRo7ek: size of argument offsets = {} is less to internal size of m_offsets {}\n", offsets.size(), m_elements.size());
             return;
         }
+        m_offsets.clear();
         
         for (int i = 0; i < m_elements.size(); i++) 
         {
@@ -288,24 +287,6 @@ void MDRow::showEvent(QShowEvent *event)
     
 }
 
-void MDRow::resizeColumns(const std::vector<int>& sizes_of_columns)
-{
-    m_auto_resize = false;
-    m_needs_testaf = true;
-
-    m_offsets.clear();
-    m_offsets.push_back(m_margin);
-    for (int i = 0; i < sizes_of_columns.size(); i++)
-    {
-        m_offsets.push_back(sizes_of_columns[i] + m_offsets[i] + m_spacing); 
-    }
-
-    if (this->isVisible())
-    {
-        setefRo7ek();
-    }
-}
-
 
 
 
@@ -370,12 +351,12 @@ void MDDatatable::setefRo7ek()
     fmt::print("MDDatatable: setefRo7ek event\n");
     if (this->isVisible())
     {
-        m_cols_offsets.clear();
-        m_rows_offsets.clear();
+        
 
         if (m_auto_resize)
         {
-
+            m_cols_offsets.clear();
+            m_rows_offsets.clear();
 
             // represents max length (ie where to put the next element)
             std::vector<int> biggest_columns_sizes;
@@ -395,12 +376,8 @@ void MDDatatable::setefRo7ek()
                     }
                 } 
             }
-
-
-
             // TODO: You can prolly think harder on this and try to put inside the previous loops where biggest_column_sizes is getting updated.
             // for now im leaving it like this
-            
             m_cols_offsets.push_back(m_column_margin);
             for (int i = 0; i < biggest_columns_sizes.size(); i++)
             {
@@ -431,26 +408,31 @@ void MDDatatable::setefRo7ek()
             m_table_width = m_cols_offsets[m_cols_offsets.size() - 1];
             this->setFixedSize(m_table_width, m_table_height);
         }
+
+
+
         else
         {
+            m_rows_offsets.clear();
+
             for (int i = 0; i < m_rows.size(); i++)
             {
                 
                 if (i == 0)
                 {
                     m_rows[0]->move(0, 0);
+                    m_rows[0]->setefRo7ek(m_cols_offsets, m_header_height);
                     m_rows_offsets.push_back(0);
                     m_rows_offsets.push_back(m_header_height + m_row_spacing);
-                    for (const auto& offset: m_rows[0]->m_offsets)
-                    {
-                        m_cols_offsets.push_back(offset);
-                    }
-                    m_table_width = m_rows[0]->width();
+                    
+                    m_table_width = m_rows[0]->width(); // width is the same for all rows
                 }
                 else
                 {
 
                     m_rows[i]->move(0, m_rows_offsets[i]);
+                    m_rows[i]->setefRo7ek(m_cols_offsets, m_normal_rows_height);
+
                     m_rows_offsets.push_back(m_rows_offsets[i] + m_normal_rows_height + m_row_spacing );
                 }
 
@@ -511,12 +493,14 @@ void MDDatatable::resizeColumns(const std::vector<int>& sizes_of_columns)
     m_auto_resize = false;
     m_needs_testaf = true;
 
-    int max_width = 0;
-    for (auto row: m_rows)
+    
+    m_cols_offsets.clear();
+    m_cols_offsets.push_back(m_column_margin);
+    for (int i = 0; i < sizes_of_columns.size(); i++)
     {
-        row->resizeColumns(sizes_of_columns);
+        m_cols_offsets.push_back(sizes_of_columns[i] + m_cols_offsets[i] + m_column_spacing); 
+    }
 
-    }   
     if (this->isVisible())
     {
         setefRo7ek();
@@ -528,4 +512,52 @@ void MDDatatable::resizeColumns(const std::vector<int>& sizes_of_columns)
 void MDDatatable::setAutoResize(bool auto_resize)
 {
     m_auto_resize = auto_resize;
+}
+
+
+void MDDatatable::setMaxCharCount(const std::vector<int>& max_chars_of_columns)
+{
+
+    for (const auto& row: m_rows)
+    {
+        if (max_chars_of_columns.size() < row->m_elements.size())
+        {
+            fmt::print("make sure max chars vector's size is equal or bigger to number of elements\n");
+            return;
+        }
+
+        row->m_original_text.clear();
+        int i = 0;
+        for (const auto& element: row->m_elements)
+        {
+            QLabel* lbl = dynamic_cast<QLabel*>(element);
+            if (lbl != nullptr )
+            {
+                row->m_original_text.push_back(lbl->text().toStdString());
+                if (lbl->text().length() > max_chars_of_columns[i])
+                {
+                    lbl->setText(QString::fromStdString(row->m_original_text[i].substr(0, max_chars_of_columns[i]) + "..."));
+
+                }
+            }
+            else
+            {
+                QPushButton* btn = dynamic_cast<QPushButton*>(element);
+                if (btn != nullptr)
+                {
+                    row->m_original_text.push_back(btn->text().toStdString());
+                    if (btn->text().length() > max_chars_of_columns[i])
+                    {
+                        btn->setText(QString::fromStdString(row->m_original_text[i].substr(0, max_chars_of_columns[i]) + "..."));
+                    }
+                    
+                }
+                else
+                {
+                    row->m_original_text.push_back("");
+                }
+            } 
+            i++;
+        }
+    }
 }

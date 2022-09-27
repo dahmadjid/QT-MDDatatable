@@ -14,7 +14,6 @@ int main(int argc, char *argv[])
     
     std::vector<MDRow*> rows;
 
-    auto datatable = new MDDatatable( &w);
     
     auto row = MDRow::fromStringVector({"Status", "Signal Name", "Severity", "Stage", "Lapsed Time","Team Lead"}, true);
     rows.push_back(row);
@@ -23,14 +22,15 @@ int main(int argc, char *argv[])
     row = MDRow::fromStringVector({"Online", "Cosmo Prod Shared vm", "Huge", "Triaged", "12:45", "Brie Furman"});
     rows.push_back(row);
 
-    datatable->load(rows);
     row = MDRow::fromStringVector({"Online", "Cosmo Prod Shared vm", "Huge", "Triaged", "12:45", "Brie Furman"});
-    datatable->addRow(row);
+    rows.push_back(row);
+    auto datatable = new MDDatatable(rows ,&w);
 
     
     
     datatable->move(0,0);
     datatable->resizeColumns({100, 100, 100, 100, 100, 100});
+    datatable->setMaxCharCount({10,10,10,10,10,10});
     w.setFixedSize(1280, 720);
     w.show();
     
