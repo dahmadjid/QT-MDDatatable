@@ -464,6 +464,10 @@ void MDDatatable::load(const std::vector<MDRow*>& rows)
         
     }
     m_needs_testaf = true;
+    if (m_chars_limited)
+    {
+        setMaxCharCount(std::vector<int>(m_max_chars_of_columns));
+    }
     if (this->isVisible())
     {
         setefRo7ek();
@@ -518,6 +522,7 @@ void MDDatatable::setAutoResize(bool auto_resize)
 void MDDatatable::setMaxCharCount(const std::vector<int>& max_chars_of_columns)
 {
 
+
     for (const auto& row: m_rows)
     {
         if (max_chars_of_columns.size() < row->m_elements.size())
@@ -526,18 +531,22 @@ void MDDatatable::setMaxCharCount(const std::vector<int>& max_chars_of_columns)
             return;
         }
 
+
         row->m_original_text.clear();
+        m_max_chars_of_columns.clear();
         int i = 0;
         for (const auto& element: row->m_elements)
         {
+            m_max_chars_of_columns.push_back(max_chars_of_columns[i]);
             QLabel* lbl = dynamic_cast<QLabel*>(element);
             if (lbl != nullptr )
             {
                 row->m_original_text.push_back(lbl->text().toStdString());
-                if (lbl->text().length() > max_chars_of_columns[i])
+                if (row->m_original_text[i].length() > max_chars_of_columns[i])
                 {
-                    lbl->setText(QString::fromStdString(row->m_original_text[i].substr(0, max_chars_of_columns[i]) + "..."));
-
+                    std::string temp = row->m_original_text[i].substr(0, max_chars_of_columns[i]) + "...";
+                    fmt::print("original text = {}, temp text= {}\n", row->m_original_text[i], temp);
+                    lbl->setText(QString::fromStdString(temp));
                 }
             }
             else
@@ -548,9 +557,55 @@ void MDDatatable::setMaxCharCount(const std::vector<int>& max_chars_of_columns)
                     row->m_original_text.push_back(btn->text().toStdString());
                     if (btn->text().length() > max_chars_of_columns[i])
                     {
-                        btn->setText(QString::fromStdString(row->m_original_text[i].substr(0, max_chars_of_columns[i]) + "..."));
+                        std::string temp = row->m_original_text[i].substr(0, max_chars_of_columns[i]) + "...";
+                        fmt::print("original text = {}, temp text= {}\n", row->m_original_text[i], temp);
+                        btn->setText(QString::fromStdString(temp));
                     }
                     
+                }
+                else
+                {
+                    row->m_original_text.push_back("");
+                }
+            } 
+            i++;
+        }
+    }
+
+    m_chars_limited = true;
+
+}
+
+
+
+void MDDatatable::unlimitCharCount()
+{
+    m_chars_limited = false;
+    for (const auto& row: m_rows)
+    {
+        if(row->m_original_text.size() < row->m_elements.size())
+        {
+            fmt::print("m_original_text size is less than the number of elements, returning\n");
+            return;
+        }
+
+        int i = 0;
+        for (const auto& element: row->m_elements)
+        {
+            
+            QLabel* lbl = dynamic_cast<QLabel*>(element);
+            if (lbl != nullptr )
+            {
+                
+                lbl->setText(QString::fromStdString(row->m_original_text[i]));
+                
+            }
+            else
+            {
+                QPushButton* btn = dynamic_cast<QPushButton*>(element);
+                if (btn != nullptr)
+                {
+                    btn->setText(QString::fromStdString(row->m_original_text[i]));
                 }
                 else
                 {

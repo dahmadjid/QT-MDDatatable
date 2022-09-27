@@ -50,7 +50,6 @@ class MDRow : public QWidget
         int m_spacing = 16;
         bool m_needs_testaf = true;
         bool m_auto_resize = true;
-
     friend class MDDatatable;
         
 
@@ -80,12 +79,13 @@ class MDDatatable : public QWidget
          */
         void resizeColumns(const std::vector<int>& sizes_of_columns);
         void setMaxCharCount(const std::vector<int>& max_chars_of_columns);
-
+        void unlimitCharCount();
     private:
         std::vector<MDRow*> m_rows;
         int m_table_width, m_table_height;
         std::vector<int> m_rows_offsets;
         std::vector<int> m_cols_offsets;
+        
         int m_header_height = 56;  
         int m_normal_rows_height = 52;
         int m_row_spacing = 1;  // spacing between each row
@@ -93,8 +93,12 @@ class MDDatatable : public QWidget
         int m_column_margin = 32;
         bool m_needs_testaf = true;
         bool m_auto_resize = true;
+        bool m_chars_limited = false;
+        std::vector<int> m_max_chars_of_columns;
+
         void setefRo7ek();
         void showEvent(QShowEvent *event) override;
+
         // void hideEvent(QHideEvent *event) override;
 
 };

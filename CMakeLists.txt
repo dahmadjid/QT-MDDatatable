@@ -9,7 +9,7 @@ if (WIN32)
     add_compile_definitions(WINDOWS)
 else()
     add_compile_definitions(LINUX)
-    add_compile_options(-Wall -Wextra -Wpedantic -fsanitize=address -v )
+    add_compile_options(-Wall -Wextra -Wpedantic -fsanitize=address )
 endif()
 
 add_link_options(-fsanitize=address)
